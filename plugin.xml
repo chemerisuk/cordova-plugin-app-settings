@@ -1,0 +1,47 @@
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+xmlns:android="http://schemas.android.com/apk/res/android"
+           id="cordova-plugin-app-settings"
+      version="0.5.0">
+
+    <name>cordova-plugin-app-settings</name>
+    <description>Cordova plugin for App Settings</description>
+    <license>MIT</license>
+    <keywords>cordova</keywords>
+    <repo>https://github.com/chemerisuk/cordova-plugin-app-settings</repo>
+    <issue>https://github.com/chemerisuk/cordova-plugin-app-settings/issues</issue>
+
+    <js-module src="www/AppSettings.js" name="AppSettings">
+        <merges target="cordova.plugins.settings" />
+    </js-module>
+
+    <engines>
+        <engine name="cordova" version=">=7.1.0"/>
+        <engine name="cordova-android" version=">=7.0.0"/>
+        <engine name="cordova-ios" version=">=4.3.0"/>
+    </engines>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="AppSettings">
+                <param name="ios-package" value="AppSettingsPlugin" />
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/AppSettingsPlugin.h" />
+        <source-file src="src/ios/AppSettingsPlugin.m" />
+    </platform>
+
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="AppSettings">
+                <param name="android-package" value="by.chemerisuk.cordova.settigns.AppSettingsPlugin" />
+            </feature>
+        </config-file>
+
+        <dependency id="cordova-support-android-plugin" version="~1.0.0"/>
+
+        <source-file src="src/android/AppSettingsPlugin.java"
+            target-dir="src/by/chemerisuk/cordova/settigns/" />
+    </platform>
+
+</plugin>
