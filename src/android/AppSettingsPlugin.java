@@ -33,21 +33,18 @@ public class AppSettingsPlugin extends ReflectiveCordovaPlugin {
 
     @CordovaMethod(ExecutionThread.WORKER)
     protected void getString(String key, CallbackContext callbackContext) {
-        if (key == null) {
-            callbackContext.error("Key must not be blank");
-        } else if (sharedPrefs.contains(key)) {
-            callbackContext.success(sharedPrefs.getString(key, ""));
-        } else {
-            callbackContext.sendPluginResult(
-                new PluginResult(PluginResult.Status.OK, (String)null));
+        PluginResult pluginResult = verifyKey(key, true);
+        if (pluginResult == null) {
+            String value = sharedPrefs.getString(key, "");
+            pluginResult = new PluginResult(PluginResult.Status.OK, value);
         }
+        callbackContext.sendPluginResult(pluginResult);
     }
 
     @CordovaMethod(ExecutionThread.WORKER)
     protected void setString(String key, String value, CallbackContext callbackContext) {
-        if (key == null) {
-            callbackContext.error("Key must not be blank");
-        } else {
+        PluginResult pluginResult = verifyKey(key, false);
+        if (pluginResult == null) {
             if (value == null) {
                 sharedPrefsEditor.remove(key);
             } else {
@@ -55,32 +52,28 @@ public class AppSettingsPlugin extends ReflectiveCordovaPlugin {
             }
 
             if (sharedPrefsEditor.commit()) {
-                callbackContext.success(value);
+                pluginResult = new PluginResult(PluginResult.Status.OK, value);
             } else {
-                callbackContext.error("Synchronization failed");
+                pluginResult = new PluginResult(PluginResult.Status.ERROR, "Synchronization failed");
             }
         }
+        callbackContext.sendPluginResult(pluginResult);
     }
 
     @CordovaMethod(ExecutionThread.WORKER)
     protected void getBoolean(String key, CallbackContext callbackContext) {
-        if (key == null) {
-            callbackContext.error("Key must not be blank");
-        } else if (sharedPrefs.contains(key)) {
+        PluginResult pluginResult = verifyKey(key, true);
+        if (pluginResult == null) {
             boolean value = sharedPrefs.getBoolean(key, false);
-            callbackContext.sendPluginResult(
-                new PluginResult(PluginResult.Status.OK, value));
-        } else {
-            callbackContext.sendPluginResult(
-                new PluginResult(PluginResult.Status.OK, (String)null));
+            pluginResult = new PluginResult(PluginResult.Status.OK, value);
         }
+        callbackContext.sendPluginResult(pluginResult);
     }
 
     @CordovaMethod(ExecutionThread.WORKER)
     protected void setBoolean(String key, Boolean value, CallbackContext callbackContext) {
-        if (key == null) {
-            callbackContext.error("Key must not be blank");
-        } else {
+        PluginResult pluginResult = verifyKey(key, false);
+        if (pluginResult == null) {
             if (value == null) {
                 sharedPrefsEditor.remove(key);
             } else {
@@ -88,33 +81,28 @@ public class AppSettingsPlugin extends ReflectiveCordovaPlugin {
             }
 
             if (sharedPrefsEditor.commit()) {
-                callbackContext.sendPluginResult(
-                    new PluginResult(PluginResult.Status.OK, value));
+                pluginResult = new PluginResult(PluginResult.Status.OK, value);
             } else {
-                callbackContext.error("Synchronization failed");
+                pluginResult = new PluginResult(PluginResult.Status.ERROR, "Synchronization failed");
             }
         }
+        callbackContext.sendPluginResult(pluginResult);
     }
 
     @CordovaMethod(ExecutionThread.WORKER)
     protected void getNumber(String key, CallbackContext callbackContext) {
-        if (key == null) {
-            callbackContext.error("Key must not be blank");
-        } else if (sharedPrefs.contains(key)) {
+        PluginResult pluginResult = verifyKey(key, true);
+        if (pluginResult == null) {
             float value = sharedPrefs.getFloat(key, 0);
-            callbackContext.sendPluginResult(
-                new PluginResult(PluginResult.Status.OK, value));
-        } else {
-            callbackContext.sendPluginResult(
-                new PluginResult(PluginResult.Status.OK, (String)null));
+            pluginResult = new PluginResult(PluginResult.Status.OK, value);
         }
+        callbackContext.sendPluginResult(pluginResult);
     }
 
     @CordovaMethod(ExecutionThread.WORKER)
     protected void setNumber(String key, Float value, CallbackContext callbackContext) {
-        if (key == null) {
-            callbackContext.error("Key must not be blank");
-        } else {
+        PluginResult pluginResult = verifyKey(key, false);
+        if (pluginResult == null) {
             if (value == null) {
                 sharedPrefsEditor.remove(key);
             } else {
@@ -122,11 +110,21 @@ public class AppSettingsPlugin extends ReflectiveCordovaPlugin {
             }
 
             if (sharedPrefsEditor.commit()) {
-                callbackContext.sendPluginResult(
-                    new PluginResult(PluginResult.Status.OK, value));
+                pluginResult = new PluginResult(PluginResult.Status.OK, value);
             } else {
-                callbackContext.error("Synchronization failed");
+                pluginResult = new PluginResult(PluginResult.Status.ERROR, "Synchronization failed");
             }
+        }
+        callbackContext.sendPluginResult(pluginResult);
+    }
+
+    private PluginResult verifyKey(String key, boolean mustExists) {
+        if (key == null) {
+            return new PluginResult(PluginResult.Status.ERROR, "Key must not be blank");
+        } else if (mustExists && !sharedPrefs.contains(key)) {
+            return new PluginResult(PluginResult.Status.OK, (String)null);
+        } else {
+            return null;
         }
     }
 }
