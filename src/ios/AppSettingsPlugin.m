@@ -12,40 +12,29 @@
 
 - (void)getString:(CDVInvokedUrlCommand *)command {
     NSString* key = [command.arguments objectAtIndex:0];
-
-    [self.commandDelegate runInBackground:^{
-        CDVPluginResult* pluginResult = nil;
-        if ([key isKindOfClass:[NSNull class]]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
-        } else {
-            NSString* value = [defaults stringForKey:key];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
-        }
-
+    [self doWithValidKey:key command:command method:^{
+        NSString* value = [defaults stringForKey:key];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
 
 - (void)setString:(CDVInvokedUrlCommand *)command {
     NSString* key = [command.arguments objectAtIndex:0];
-    NSString* value = [command.arguments objectAtIndex:1];
+    [self doWithValidKey:key command:command method:^{
+        NSString* value = [command.arguments objectAtIndex:1];
 
-    [self.commandDelegate runInBackground:^{
-        CDVPluginResult* pluginResult = nil;
-        if ([key isKindOfClass:[NSNull class]]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
+        if ([value isKindOfClass:[NSNull class]]) {
+            [defaults removeObjectForKey:key];
         } else {
-            if ([value isKindOfClass:[NSNull class]]) {
-                [defaults removeObjectForKey:key];
-            } else {
-                [defaults setObject:value forKey:key];
-            }
+            [defaults setObject:value forKey:key];
+        }
 
-            if ([defaults synchronize]) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
-            } else {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Synchronization failed"];
-            }
+        CDVPluginResult* pluginResult = nil;
+        if ([defaults synchronize]) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Synchronization failed"];
         }
 
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -54,40 +43,29 @@
 
 - (void)getNumber:(CDVInvokedUrlCommand *)command {
     NSString* key = [command.arguments objectAtIndex:0];
-
-    [self.commandDelegate runInBackground:^{
-        CDVPluginResult* pluginResult = nil;
-        if ([key isKindOfClass:[NSNull class]]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
-        } else {
-            double value = [defaults doubleForKey:key];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:value];
-        }
-
+    [self doWithValidKey:key command:command method:^{
+        double value = [defaults doubleForKey:key];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
 
 - (void)setNumber:(CDVInvokedUrlCommand *)command {
     NSString* key = [command.arguments objectAtIndex:0];
-    id value = [command.arguments objectAtIndex:1];
+    [self doWithValidKey:key command:command method:^{
+        id value = [command.arguments objectAtIndex:1];
 
-    [self.commandDelegate runInBackground:^{
-        CDVPluginResult* pluginResult = nil;
-        if ([key isKindOfClass:[NSNull class]]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
+        if ([value isKindOfClass:[NSNull class]]) {
+            [defaults removeObjectForKey:key];
         } else {
-            if ([value isKindOfClass:[NSNull class]]) {
-                [defaults removeObjectForKey:key];
-            } else {
-                [defaults setDouble:[value doubleValue] forKey:key];
-            }
+            [defaults setDouble:[value doubleValue] forKey:key];
+        }
 
-            if ([defaults synchronize]) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:[value doubleValue]];
-            } else {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Synchronization failed"];
-            }
+        CDVPluginResult* pluginResult = nil;
+        if ([defaults synchronize]) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:[value doubleValue]];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Synchronization failed"];
         }
 
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -96,40 +74,38 @@
 
 - (void)getBoolean:(CDVInvokedUrlCommand *)command {
     NSString* key = [command.arguments objectAtIndex:0];
-
-    [self.commandDelegate runInBackground:^{
-        CDVPluginResult* pluginResult = nil;
-        if ([key isKindOfClass:[NSNull class]]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
-        } else {
-            BOOL value = [defaults boolForKey:key];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:value];
-        }
-
+    [self doWithValidKey:key command:command method:^{
+        BOOL value = [defaults boolForKey:key];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
 
 - (void)setBoolean:(CDVInvokedUrlCommand *)command {
     NSString* key = [command.arguments objectAtIndex:0];
-    BOOL value = [command.arguments objectAtIndex:1];
+    [self doWithValidKey:key command:command method:^{
+        BOOL value = [command.arguments objectAtIndex:1];
 
-    [self.commandDelegate runInBackground:^{
+        [defaults setBool:value forKey:key];
+
         CDVPluginResult* pluginResult = nil;
-        if ([key isKindOfClass:[NSNull class]]) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
+        if ([defaults synchronize]) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:value];
         } else {
-            [defaults setBool:value forKey:key];
-
-            if ([defaults synchronize]) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:value];
-            } else {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Synchronization failed"];
-            }
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Synchronization failed"];
         }
 
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
+}
+
+- (void)doWithValidKey:(NSString*)key command:(CDVInvokedUrlCommand *)command method:(void (^)())block {
+    if ([key isKindOfClass:[NSNull class]]) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } else {
+        [self.commandDelegate runInBackground:block];
+    }
 }
 
 @end
