@@ -36,7 +36,7 @@
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
         } else {
             if ([value isKindOfClass:[NSNull class]]) {
-                [defaults removeObjectForKey:value];
+                [defaults removeObjectForKey:key];
             } else {
                 [defaults setObject:value forKey:key];
             }
@@ -78,7 +78,7 @@
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Key must not be blank"];
         } else {
             if ([value isKindOfClass:[NSNull class]]) {
-                [defaults removeObjectForKey:value];
+                [defaults removeObjectForKey:key];
             } else {
                 [defaults setDouble:[value doubleValue] forKey:key];
             }
