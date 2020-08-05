@@ -9,4 +9,6 @@
 - (void)getBoolean:(CDVInvokedUrlCommand*)command;
 - (void)setBoolean:(CDVInvokedUrlCommand*)command;
 
+@property (nonatomic, readwrite, weak) NSUserDefaults* defaults;
+
 @end
